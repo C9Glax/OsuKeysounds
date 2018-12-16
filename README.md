@@ -1,5 +1,5 @@
 # OsuKeysounds
-Reproduces the Typing-sounds of Osu on all .NET Machines
+Reproduces the Typing-sounds of Osu on all .NET Machines.
 Look at source-code at your own discretion. Really.
 
 # Usage
