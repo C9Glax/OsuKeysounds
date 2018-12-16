@@ -3,7 +3,7 @@ Reproduces the Typing-sounds of Osu on all .NET Machines.
 Look at source-code at your own discretion. Really.
 
 # Download "Installer"
-http://bit.do/Osu-Keysounds 
+http://bit.do/OsuKeysoundsDownload
 
 # Usage
 Just start the Keysounds.exe
