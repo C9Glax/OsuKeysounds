@@ -7,102 +7,111 @@ using System.Windows.Forms;
 
 namespace Keysounds
 {
-    internal class Keysounds : Form
+    internal class Keysounds : Form //ugly way to do this, but hey, this is all hacked together anyways
     {
-        private IKeyboardMouseEvents GlobalHook;
+        private IKeyboardMouseEvents keyboardHook;
         private readonly string[] keypaths = {"key-caps","key-confirm","key-delete","key-movement","key-press-1", "key-press-2", "key-press-3", "key-press-4" };
-        private readonly NotifyIcon icon;
-        private readonly ContextMenu menu;
-        private float volume = 0.2f;
+        private readonly NotifyIcon notifyIcon;
+        private float playbackVolume = 0.2f;
 
         public Keysounds()
         {
-            MenuItem[] items = new MenuItem[] {
-                new MenuItem("End", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 10", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.9", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.8", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.7", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.6", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.5", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.4", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.3", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.2", new EventHandler(this.MenuHandler)),
-                new MenuItem("Volume 0.1", new EventHandler(this.MenuHandler)),
-                new MenuItem("Pause", new EventHandler(this.MenuHandler))
+            EventHandler menuClickHandler = new EventHandler(this.MenuHandler);
+            MenuItem[] menuItems = new MenuItem[] {
+                new MenuItem("End", menuClickHandler),
+                new MenuItem("Volume 10", menuClickHandler),
+                new MenuItem("Volume 0.9", menuClickHandler),
+                new MenuItem("Volume 0.8", menuClickHandler),
+                new MenuItem("Volume 0.7", menuClickHandler),
+                new MenuItem("Volume 0.6", menuClickHandler),
+                new MenuItem("Volume 0.5", menuClickHandler),
+                new MenuItem("Volume 0.4", menuClickHandler),
+                new MenuItem("Volume 0.3", menuClickHandler),
+                new MenuItem("Volume 0.2", menuClickHandler),
+                new MenuItem("Volume 0.1", menuClickHandler),
+                new MenuItem("Pause", menuClickHandler)
             };
-            this.menu = new ContextMenu(items);
-            this.icon = new NotifyIcon()
+            ContextMenu notifyIconMenu = new ContextMenu(menuItems);
+            this.notifyIcon = new NotifyIcon()
             {
-                BalloonTipText = "Find me here!",
-                BalloonTipTitle = "Osu Keyboard sounds",
-                Text = "Osu Keyboard sounds",
                 Visible = false,
                 Icon = new Icon("Resources/osulogo.ico"),
-                ContextMenu = this.menu
+                ContextMenu = notifyIconMenu,
+                Text = "Osu Keysounds"
             };
             this.Icon = new Icon("Resources/osulogo.ico");
             this.Subscribe();
             this.Height = 0;
-            this.Width = 500;
+            this.Width = 300;
+            this.Text = "Osu Keysounds";
             this.MaximizeBox = false;
             this.Resize += this.FrmMain_Resize;
             this.FormClosing += this.Keysounds_FormClosing;
         }
 
+
+        /// <summary>
+        /// Handles the Selection of the ToolTipMenu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuHandler(object sender, EventArgs e)
         {
             switch (((MenuItem)sender).Text)
             {
                 case "Pause":
-                    this.volume = 0f;
+                    this.playbackVolume = 0f;
                     break;
                 case "End":
                     this.FindForm().Close();
                     break;
                 default:
-                    this.volume = Convert.ToSingle(((MenuItem)sender).Text.Split(' ')[1])/10;
-                    Console.WriteLine(this.volume);
+                    this.playbackVolume = Convert.ToSingle(((MenuItem)sender).Text.Split(' ')[1])/10;
                     break;
             }
         }
 
-        private void Icon_Click(object sender, EventArgs e)
-        {
-            this.Show();
-            this.Activate();
-            this.BringToFront();
-            this.FindForm().Focus();
-        }
-
+        /// <summary>
+        /// Called when Form-size is changed in any way (for example minimized)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FrmMain_Resize(object sender, EventArgs e)
         {
             if (FormWindowState.Minimized == this.WindowState)
             {
-                this.icon.Visible = true;
-                this.icon.ShowBalloonTip(500);
+                this.notifyIcon.Visible = true;
                 this.Hide();
-            }
-            else if (FormWindowState.Normal == this.WindowState)
-            {
-                this.icon.Visible = false;
             }
         }
 
+        /// <summary>
+        /// Called when exiting the Program
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Keysounds_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Unsubscribe();
         }
 
-        public void Subscribe()
+        /// <summary>
+        /// Creates the KeyboardHook
+        /// </summary>
+        private void Subscribe()
         {
-            this.GlobalHook = Hook.GlobalEvents();
-            this.GlobalHook.KeyDown += this.GlobalHookKeyDown;
+            this.keyboardHook = Hook.GlobalEvents();
+            this.keyboardHook.KeyDown += this.GlobalHookKeyDown;
         }
 
-        private void GlobalHookKeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        /// <summary>
+        /// Callback-Method for the Keyboard-Hook
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GlobalHookKeyDown(object sender, KeyEventArgs e)
         {
-            Thread t = new Thread(this.Player);
+            Thread t = new Thread(this.Player); //Asynchronous playing
             switch (e.KeyCode)
             {
                 case Keys.Escape:
@@ -117,6 +126,7 @@ namespace Keysounds
                 case Keys.CapsLock:
                     t.Start(this.keypaths[0]);
                     break;
+                //Arrow-Keys play movement sound
                 case Keys.Left:
                     t.Start(this.keypaths[3]);
                     break;
@@ -129,6 +139,7 @@ namespace Keysounds
                 case Keys.Up:
                     t.Start(this.keypaths[3]);
                     break;
+                //Next few lines are ugly, please scroll past. thank you.
                 case Keys.LWin: break;
                 case Keys.RWin: break;
                 case Keys.LControlKey: break;
@@ -174,7 +185,7 @@ namespace Keysounds
                 case Keys.Apps: break;
                 case Keys.Scroll: break;
                 default:
-                    t.Start(this.keypaths[new Random().Next(4,7)]);
+                    t.Start(this.keypaths[new Random().Next(4,7)]); //Play one of the four Key-typing sounds
                     break;
             }
             Console.WriteLine(e.KeyCode);
@@ -185,7 +196,7 @@ namespace Keysounds
             Mp3FileReader mp3 = new Mp3FileReader("Resources/"+(string)path+".mp3");
             WaveOut wo = new WaveOut();
             wo.Init(mp3);
-            wo.Volume = this.volume;
+            wo.Volume = this.playbackVolume;
             wo.Play();
             while (wo.PlaybackState != PlaybackState.Stopped)
                 Thread.Sleep(20);
@@ -193,13 +204,13 @@ namespace Keysounds
             Thread.CurrentThread.Abort();
         }
 
-        public void Unsubscribe()
+        private void Unsubscribe()
         {
-            this.GlobalHook.KeyDown -= this.GlobalHookKeyDown;
-            this.GlobalHook.Dispose();
+            this.keyboardHook.KeyDown -= this.GlobalHookKeyDown;
+            this.keyboardHook.Dispose();
         }
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Application.Run(new Keysounds());
         }
