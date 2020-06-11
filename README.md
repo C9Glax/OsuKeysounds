@@ -1,7 +1,7 @@
 # OsuKeysounds
 Reproduces the Typing-sounds of Osu.
 
-#Prerequisits
+# Prerequisits
 .NET-Framework 4.7.2 and up
 
 # Usage
