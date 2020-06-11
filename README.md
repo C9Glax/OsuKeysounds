@@ -1,17 +1,11 @@
 # OsuKeysounds
-Reproduces the Typing-sounds of Osu on all .NET Machines.
+Reproduces the Typing-sounds of Osu.
 
-# Download "Installer"
-- [Latest](https://drive.google.com/open?id=17r3DuJV5fbtqQnu-3hAc1IyKrHeCoIR3)
-- [All](http://bit.do/OsuKeysoundsDownload)
+#Prerequisits
+.NET-Framework 4.7.2 and up
 
 # Usage
-Just start the Keysounds.exe
-Do not move the Resources Folder relative the Keysounds.exe file
+Run `OSU Keysounds.exe`.
 
-# Disclaimer
-I do not own Naudio.dll or MouseKeyHook.dll or any of the mp3's. 
-You can find the github-repositories here:
-- [NAudio](https://github.com/naudio/NAudio)
-- [MouseKeyHook](https://github.com/gmamaladze/globalmousekeyhook)
-- [Osu!](https://github.com/ppy/osu-resources/tree/c3848d8b1c84966abe851d915bcca878415614b4/osu.Game.Resources/Samples/Keyboard)
+#Disclaimer
+This is basically a LowLevel Keylogger. Proceed at own risk.
