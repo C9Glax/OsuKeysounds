@@ -76,7 +76,7 @@ namespace OSU_Keysounds
                 else
                 {
                     Random r = new Random();
-                    switch (r.Next(1, 4))
+                    switch (r.Next(0,5))
                     {
                         case 1:
                             player.Stream = sounds.key_press_1;
