@@ -7,5 +7,5 @@ Reproduces the Typing-sounds of Osu.
 # Usage
 Download latest Release (on the right side) and run `OSU Keysounds.exe`.
 
-#Disclaimer
-This is basically a LowLevel Keylogger. Proceed at own risk.
+# Disclaimer
+This program might be detected as a KeyLogger. Read the code.
