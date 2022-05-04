@@ -12,11 +12,18 @@ namespace OSU_Keysounds
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TrayApplication());
+            if(args.Length == 0)
+            {
+                Application.Run(new TrayApplication(new string[] { Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\osu!" }));
+            }
+            else
+            {
+                Application.Run(new TrayApplication(args));
+            }
         }
     }
 }
