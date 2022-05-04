@@ -4,13 +4,14 @@ using System.Windows.Forms;
 using System.Media;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
-using OSU_Keysounds.Properties;
+using System.IO;
 
 namespace OSU_Keysounds
 {
     public partial class TrayApplication : Form
     {
+        private static Dictionary<Keys, UnmanagedMemoryStream> keySoundDict = new Dictionary<Keys, UnmanagedMemoryStream>();
+
         private readonly static List<Keys> key_delete = new List<Keys>() { Keys.Back, Keys.Delete };
         private readonly static List<Keys> key_movement = new List<Keys>() { Keys.Left, Keys.Right, Keys.Up, Keys.Down, Keys.Home, Keys.End, Keys.PageDown, Keys.PageUp };
 
@@ -19,9 +20,24 @@ namespace OSU_Keysounds
         private readonly static LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
 
+
+        private static Random r = new Random();
+        private static SoundPlayer player = new SoundPlayer();
         public TrayApplication()
         {
             InitializeComponent();
+
+            foreach (Keys key in key_delete)
+            {
+                keySoundDict.Add(key, sounds.key_delete);
+            }
+            foreach (Keys key in key_movement)
+            {
+                keySoundDict.Add(key, sounds.key_movement);
+            }
+            keySoundDict.Add(Keys.Enter, sounds.key_confirm);
+            keySoundDict.Add(Keys.CapsLock, sounds.key_caps);
+
             _hookID = SetHook(_proc);
         }
 
@@ -55,28 +71,11 @@ namespace OSU_Keysounds
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
-                int vkCode = Marshal.ReadInt32(lParam);
-                SoundPlayer player = new SoundPlayer();
-                if(Keys.Enter == (Keys)vkCode)
+                Keys pressedKey = (Keys)Marshal.ReadInt32(lParam);
+
+                if (!keySoundDict.ContainsKey(pressedKey))
                 {
-                    player.Stream = sounds.key_confirm;
-                }
-                else if(Keys.CapsLock == (Keys)vkCode)
-                {
-                    player.Stream = sounds.key_caps;
-                }
-                else if (key_delete.Contains((Keys)vkCode))
-                {
-                    player.Stream = sounds.key_delete;
-                }
-                else if (key_movement.Contains((Keys)vkCode))
-                {
-                    player.Stream = sounds.key_movement;
-                }
-                else
-                {
-                    Random r = new Random();
-                    switch (r.Next(0,5))
+                    switch (r.Next(0, 5))
                     {
                         case 1:
                             player.Stream = sounds.key_press_1;
@@ -91,6 +90,10 @@ namespace OSU_Keysounds
                             player.Stream = sounds.key_press_4;
                             break;
                     }
+                }
+                else
+                {
+                    player.Stream = keySoundDict[pressedKey];
                 }
                 player.Play();
             }
